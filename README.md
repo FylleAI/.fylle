@@ -8,6 +8,7 @@
   <a href="#the-problem">Problem</a> &middot;
   <a href="#how-it-works">How it works</a> &middot;
   <a href="#bridge">Bridge</a> &middot;
+  <a href="#migrate-from-openclaw">Migrate from OpenClaw</a> &middot;
   <a href="#quickstart">Quickstart</a> &middot;
   <a href="spec/SPECIFICATION.md">Spec</a>
 </p>
@@ -130,6 +131,8 @@ The bridge is where `.fylle` gets practical. It translates agents between framew
 | .fylle | CrewAI (YAML) | Working |
 | OpenAI Assistants (JSON) | .fylle | Working |
 | .fylle | OpenAI Assistants (JSON) | Working |
+| **OpenClaw (SOUL.md)** | **.fylle** | **Working** |
+| **.fylle** | **Claude Code (CLAUDE.md)** | **Working** |
 | .fylle | Live execution (Claude / GPT) | Working |
 
 ### Import a CrewAI agent, export to OpenAI — in 5 lines
@@ -164,6 +167,53 @@ ANTHROPIC_API_KEY=sk-... python fylle_bridge/demo/run_demo.py
 ```
 
 The demo shows the full flow: **CrewAI YAML → .fylle → validate → build package → OpenAI JSON → live execution**.
+
+## Migrate from OpenClaw
+
+Moving from OpenClaw to Claude Code? `.fylle` handles the migration. Your SOUL.md agent definition goes in, a complete Claude Code workspace comes out — CLAUDE.md, settings, rules, everything.
+
+```python
+from fylle_bridge import openclaw_to_fylle, fylle_to_claude_code
+
+# Step 1: Import your OpenClaw agent
+agent = openclaw_to_fylle(open("SOUL.md").read())
+
+# Step 2: Export to Claude Code
+workspace = fylle_to_claude_code(agent)
+
+# workspace contains:
+# - claude_md:      CLAUDE.md content (your system prompt)
+# - settings_json:  .claude/settings.json (model, permissions)
+# - rules:          .claude/rules/*.md (your agent rules)
+# - mcp_json:       .mcp.json (tool config, if any)
+```
+
+### Run the migration demo
+
+```bash
+cd sdk/python
+pip install -e ".[bridge]"
+
+# Migrate with sample agent
+python fylle_bridge/demo/run_migration_demo.py
+
+# Migrate your own agent and write files to disk
+python fylle_bridge/demo/run_migration_demo.py --soul /path/to/SOUL.md --output ./my-project
+
+# Then use Claude Code directly
+cd ./my-project && claude
+```
+
+### What gets migrated
+
+| OpenClaw (SOUL.md) | Claude Code | Notes |
+|---|---|---|
+| `# AgentName` | CLAUDE.md title | Agent name |
+| `## Personality` | CLAUDE.md body | System prompt |
+| `## Rules` | `.claude/rules/agent-rules.md` | One rule per line |
+| `## Skills` | Tool declarations | Preserved in .fylle |
+| `## Identity → Model` | `settings.json → model` | Provider prefix stripped |
+| `## Greeting`, `USER.md` | `extensions.openclaw` | Preserved for roundtrip |
 
 ## Two formats
 
@@ -245,10 +295,10 @@ build_fylle_package(agent, "my-agent.fylle")
 ├── sdk/python/
 │   ├── fylle_format/                 # Core SDK (parse, validate, build)
 │   ├── fylle_bridge/                 # Framework adapters + runner
-│   │   ├── adapters/                 # CrewAI, OpenAI translators
+│   │   ├── adapters/                 # CrewAI, OpenAI, OpenClaw, Claude Code
 │   │   ├── runner/                   # Live agent execution
-│   │   └── demo/                     # End-to-end demo script
-│   └── tests/                        # 44 tests, all passing
+│   │   └── demo/                     # Bridge demo + migration demo
+│   └── tests/                        # 72 tests, all passing
 ├── cli/                              # CLI tool (planned)
 └── LICENSE                           # Apache 2.0
 ```
@@ -258,11 +308,14 @@ build_fylle_package(agent, "my-agent.fylle")
 > **v0.1.0** — built for our own needs, shared in case it's useful to others.
 
 - [x] Format specification v0.1.0
-- [x] Python SDK (parse, validate, build) — 44 tests passing
+- [x] Python SDK (parse, validate, build) — 72 tests passing
 - [x] CrewAI adapter (import/export)
 - [x] OpenAI Assistants adapter (import/export)
+- [x] **OpenClaw adapter** (SOUL.md import/export)
+- [x] **Claude Code adapter** (CLAUDE.md + settings + rules export)
+- [x] **OpenClaw → Claude Code migration** (full pipeline)
 - [x] Live agent runner (Anthropic + OpenAI)
-- [x] End-to-end demo
+- [x] End-to-end demos (bridge + migration)
 - [ ] More adapters (AutoGen, Dify, LangChain)
 - [ ] CLI tool
 - [ ] npm SDK

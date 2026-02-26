@@ -1,51 +1,59 @@
 <p align="center">
   <h1 align="center">.fylle</h1>
-  <p align="center"><strong>The portable format for AI agents.</strong></p>
-  <p align="center">Package, share, and deploy AI agents anywhere.</p>
+  <p align="center"><strong>A portable format for AI agents.</strong></p>
+  <p align="center">Define your agents once. Run them on any framework.</p>
 </p>
 
 <p align="center">
-  <a href="spec/SPECIFICATION.md">Specification</a> &middot;
-  <a href="examples/">Examples</a> &middot;
-  <a href="sdk/python/">Python SDK</a> &middot;
-  <a href="#quickstart">Quickstart</a>
+  <a href="#the-problem">Problem</a> &middot;
+  <a href="#how-it-works">How it works</a> &middot;
+  <a href="#bridge">Bridge</a> &middot;
+  <a href="#quickstart">Quickstart</a> &middot;
+  <a href="spec/SPECIFICATION.md">Spec</a>
 </p>
 
 ---
 
+<p align="center">
+  <img src="demo.gif" alt=".fylle demo — CrewAI to OpenAI bridge" width="700">
+</p>
+
+---
+
+## The problem
+
+We build AI agents for our platform [Fylle](https://fylle.ai). One day we realized: if the framework we use changes its API, gets acquired, or something better comes out — we have to rewrite everything.
+
+Our agents were locked inside the runtime. The prompts, the model configs, the tool declarations, the guardrails — all coupled to one framework.
+
+We needed a way to **define agents independently from the runtime**, so we could:
+
+- Switch frameworks without rewriting agents
+- Version agent definitions in Git
+- Share agents across teams and projects
+- Test and validate agents before deploying them
+
+So we built `.fylle`.
+
 ## What is .fylle?
 
-A `.fylle` file is a **portable AI agent package** — a single file that contains everything needed to run an AI agent on any platform.
-
-Think of it as the **Dockerfile for AI agents**: a standard way to define, share, and deploy intelligent agents across different runtimes and frameworks.
+A `.fylle` file is a ZIP archive that contains a complete AI agent definition:
 
 ```
-my-agent.fylle (ZIP archive)
-├── manifest.yaml      # Identity, model requirements, inputs/outputs
-├── agent.md           # System prompt — the agent's brain
-├── skills/            # Modular capabilities (YAML)
-├── guardrails.yaml    # Rules, limits, constraints
-├── memory-schema.yaml # What the agent remembers
-└── README.md          # Human documentation
+my-agent.fylle
+├── manifest.yaml      # Identity, model, inputs/outputs, tools
+├── agent.md           # System prompt — the agent's personality
+├── guardrails.yaml    # Rules, limits, constraints (optional)
+├── skills/            # Modular capabilities (optional)
+├── memory-schema.yaml # What the agent remembers (optional)
+└── README.md          # Human documentation (optional)
 ```
 
-## Why .fylle?
-
-Today, AI agents are **trapped inside frameworks**. An agent built for LangChain can't run on CrewAI. An OpenAI Assistant can't move to Claude. Every platform has its own format, its own lock-in.
-
-`.fylle` solves this:
-
-| Problem | .fylle solution |
-|---|---|
-| Agents are code, not data | `.fylle` is a **declarative format** — YAML + Markdown, no code |
-| Agents are locked to one framework | `.fylle` is **runtime-agnostic** — works on any platform |
-| Agents can't be shared | `.fylle` is a **single file** you can upload, download, git-version |
-| No standard for agent capabilities | `.fylle` declares **inputs, tools, skills, guardrails** explicitly |
-| Agents are black boxes | `.fylle` is **human-readable** — open the ZIP, read the YAML |
+It's **declarative** — it says WHAT the agent is, not HOW to run it. Any runtime reads the parts it understands and ignores the rest.
 
 ## How it works
 
-### 1. An agent declares what it IS (not how to run it)
+### 1. Define your agent
 
 ```yaml
 # manifest.yaml
@@ -59,8 +67,7 @@ agent:
 
   model:
     preferred: "claude-sonnet-4-5"
-    minimum_capability:
-      - "tool-use"
+    minimum_capability: ["tool-use"]
     settings:
       temperature: 0.7
 
@@ -71,206 +78,205 @@ agent:
       type: "text"
       required: true
       description: "What to research"
-    - name: "brand_context"
-      type: "text"
-      required: false
-      description: "Brand voice and guidelines"
-
-  output:
-    format: "markdown"
 
   tools:
     required:
       - name: "web_search"
         protocol: "mcp"
         description: "Search the web for current information"
+
+  guardrails:
+    max_autonomy: "draft-only"
+    limits:
+      max_iterations: 30
 ```
 
-### 2. Any runtime can load it
+### 2. Parse, validate, build — with the Python SDK
 
 ```python
-# Python
-from fylle_format import parse_fylle_package
+from fylle_format import parse_fylle_package, validate, build_fylle_package
 
-agent = parse_fylle_package("content-curator.fylle")
-print(agent.manifest.agent.name)        # "Content Curator"
-print(agent.personality)                 # Full system prompt from agent.md
-print(agent.manifest.agent.inputs)       # What the agent expects
-print(agent.manifest.agent.tools)        # What tools it needs
-```
-
-### 3. Each runtime maps it to its own execution model
-
-The `.fylle` format is **declarative** — it says WHAT the agent needs, not HOW to execute it. Each runtime interprets the same `.fylle` file differently:
-
-| Runtime | How it maps .fylle |
-|---|---|
-| **Fylle** | Native execution with feedback loops and context layer |
-| **LangChain** | `create_agent(model=..., system_prompt=agent.md, tools=...)` |
-| **CrewAI** | `Agent(role=..., goal=..., backstory=agent.md, tools=...)` |
-| **OpenAI** | `POST /v1/assistants { instructions: agent.md, tools: [...] }` |
-| **AutoGen** | `AssistantAgent(name=..., system_message=agent.md, tools=...)` |
-| **Your framework** | Read the manifest, use what you need, ignore the rest |
-
-## Two formats, two levels
-
-| | `.fylle` | `.fyllepack` |
-|---|---|---|
-| **What** | A single AI agent | A multi-agent workflow |
-| **Analogy** | A Docker image | A Docker Compose file |
-| **Contains** | manifest + prompt + skills | manifest + pipeline + N × .fylle agents |
-| **Portable?** | Yes — any runtime | Yes — any orchestrator |
-| **Use case** | "I need a content curator" | "I need a full newsletter production pipeline" |
-
-```
-newsletter-creator.fyllepack
-├── manifest.yaml                  # Pipeline: curator → writer → reviewer
-├── agents/
-│   ├── curator.fylle              # Independent, portable agent
-│   ├── writer.fylle               # Can be swapped with a different writer
-│   └── reviewer.fylle             # Can be used standalone in LangChain
-├── brief_schema.yaml              # Questions before execution
-└── README.md
-```
-
-Each `.fylle` agent inside a `.fyllepack` is **independently valid** — you can extract it and use it alone on any platform.
-
-## Key design principles
-
-1. **Declarative, not imperative** — describes what the agent IS, not how to run it
-2. **Human-readable** — YAML and Markdown, inspectable without tools
-3. **Graceful degradation** — unknown fields are ignored, not rejected
-4. **Inputs/outputs are first-class** — agents declare what they expect and produce
-5. **Extensions are welcome** — any runtime can add its own block under `extensions:`
-6. **Security by default** — guardrails, autonomy limits, and validation built in
-
-## Quickstart
-
-### Install the Python SDK
-
-```bash
-pip install fylle-format
-```
-
-### Parse a .fylle package
-
-```python
-from fylle_format import parse_fylle_package, validate
-
+# Parse
 agent = parse_fylle_package("my-agent.fylle")
+print(agent.manifest.agent.name)   # "Content Curator"
+print(agent.personality)            # Full system prompt
 
 # Validate
 result = validate(agent)
-print(result.valid)      # True
-print(result.warnings)   # ["Optional: memory-schema.yaml not found"]
-
-# Inspect
-print(agent.manifest.agent.name)
-print(agent.manifest.agent.inputs)
-print(agent.personality)  # Full system prompt
+print(result.valid)     # True
+print(result.warnings)  # [...]
 ```
 
-### Create a .fylle package
+### 3. Run on any framework
+
+The `.fylle` format is runtime-agnostic. Each framework reads what it needs:
+
+| Runtime | What it reads from .fylle |
+|---|---|
+| **CrewAI** | role → role, description → goal, agent.md → backstory |
+| **OpenAI Assistants** | name, agent.md → instructions, tools, temperature |
+| **LangChain** | model, agent.md → system prompt, tools |
+| **Your runtime** | Read the manifest, use what you need |
+
+## Bridge
+
+The bridge is where `.fylle` gets practical. It translates agents between frameworks — with `.fylle` as the interchange format in the middle.
+
+**Today it supports:**
+
+| From | To | Status |
+|---|---|---|
+| CrewAI (YAML) | .fylle | Working |
+| .fylle | CrewAI (YAML) | Working |
+| OpenAI Assistants (JSON) | .fylle | Working |
+| .fylle | OpenAI Assistants (JSON) | Working |
+| .fylle | Live execution (Claude / GPT) | Working |
+
+### Import a CrewAI agent, export to OpenAI — in 5 lines
 
 ```python
-from fylle_format import create_fylle_from_scratch, build_fylle_package
+from fylle_bridge import crewai_to_fylle, fylle_to_openai, run_fylle_agent
 
+# CrewAI YAML → .fylle
+agent = crewai_to_fylle({"researcher": {"role": "Analyst", "goal": "Research trends", "backstory": "You are an expert analyst..."}})
+
+# .fylle → OpenAI Assistant JSON
+openai_config = fylle_to_openai(agent)
+# → {"model": "gpt-4o", "name": "Researcher", "instructions": "You are an expert analyst...", ...}
+
+# Or just run it
+response = run_fylle_agent(agent, {"task": "Analyze AI agent standards"})
+```
+
+### Run the demo
+
+```bash
+cd sdk/python
+
+# Install
+pip install -e ".[bridge]"
+
+# Run (no API key needed)
+python fylle_bridge/demo/run_demo.py --dry-run
+
+# Run with live execution
+ANTHROPIC_API_KEY=sk-... python fylle_bridge/demo/run_demo.py
+```
+
+The demo shows the full flow: **CrewAI YAML → .fylle → validate → build package → OpenAI JSON → live execution**.
+
+## Two formats
+
+| | `.fylle` | `.fyllepack` |
+|---|---|---|
+| **What** | A single agent | A multi-agent workflow |
+| **Contains** | manifest + prompt + skills | manifest + pipeline + N agents |
+| **Use case** | "I need a content curator" | "I need a full content pipeline" |
+
+```
+newsletter-creator.fyllepack
+├── manifest.yaml
+├── agents/
+│   ├── curator.fylle      # Each agent is independently valid
+│   ├── writer.fylle
+│   └── reviewer.fylle
+├── brief_schema.yaml      # Questions before execution
+└── README.md
+```
+
+## Design principles
+
+1. **Declarative** — describes what the agent IS, not how to execute it
+2. **Human-readable** — YAML and Markdown, no proprietary formats
+3. **Graceful degradation** — unknown fields are ignored, not rejected
+4. **Extensions welcome** — any runtime can add its own block under `extensions:`
+5. **Security by default** — guardrails, autonomy limits, and validation built in
+
+## Relationship to other standards
+
+`.fylle` doesn't replace existing standards — it sits alongside them:
+
+| Standard | What it does | How .fylle relates |
+|---|---|---|
+| **MCP** (Anthropic) | Connects agents to tools | `.fylle` declares which MCP servers an agent needs |
+| **A2A** (Google) | Agent-to-agent communication | `.fylle` agents can participate in A2A |
+| **OAF** | Agent format (YAML + Markdown) | Similar goals — `.fylle` adds packaging and bridge |
+| **Agent Spec** (Oracle/Google) | Agent schema (JSON/YAML) | Complementary — `.fylle` focuses on portability |
+
+## Quickstart
+
+```bash
+# Install the SDK
+pip install fylle-format
+
+# Install with bridge adapters (for CrewAI/OpenAI translation)
+pip install "fylle-format[bridge]"
+```
+
+```python
+from fylle_format import create_fylle_from_scratch, build_fylle_package, validate
+
+# Create an agent
 agent = create_fylle_from_scratch(
     name="My Agent",
     description="Does amazing things",
     personality="You are a helpful assistant specialized in...",
-    version="1.0.0",
     author_name="Your Name",
 )
 
+# Validate
+result = validate(agent)
+print(result.valid)  # True
+
+# Package it
 build_fylle_package(agent, "my-agent.fylle")
 ```
-
-### Validate with CLI
-
-```bash
-fylle validate my-agent.fylle
-# ✓ Manifest valid
-# ✓ agent.md found (2.3 KB)
-# ✓ 2 skills found
-# ⚠ Optional: memory-schema.yaml not found
-# ✓ Package valid
-
-fylle inspect my-agent.fylle
-# Agent: My Agent v1.0.0
-# Author: Your Name
-# Model: claude-sonnet-4-5 (requires: tool-use)
-# Inputs: topic (required), brand_context (optional)
-# Tools: web_search (mcp, required)
-# Skills: research, analysis
-# Guardrails: draft-only, 3 rules
-```
-
-## Specification
-
-The complete format specification is in [`spec/SPECIFICATION.md`](spec/SPECIFICATION.md).
-
-## Examples
-
-### Single agents (.fylle)
-- [`examples/content-curator/`](examples/content-curator/) — A research agent that finds and curates content
-- [`examples/compliance-checker/`](examples/compliance-checker/) — A compliance review agent with strict guardrails
-
-### Workflow packs (.fyllepack)
-- [`examples/newsletter-pack/`](examples/newsletter-pack/) — A 3-agent pipeline: research → write → review
 
 ## Project structure
 
 ```
-fylle-format/
+.fylle/
 ├── spec/
-│   └── SPECIFICATION.md          # Complete format specification
+│   └── SPECIFICATION.md              # Format specification v0.1.0
 ├── examples/
-│   ├── content-curator/          # Example: single agent (.fylle)
-│   ├── compliance-checker/       # Example: single agent with guardrails (.fylle)
-│   └── newsletter-pack/          # Example: multi-agent workflow (.fyllepack)
-├── sdk/
-│   └── python/                   # Python SDK (parse, validate, build)
-│       └── fylle_format/
-├── cli/                          # CLI tool (planned)
-├── LICENSE                       # Apache 2.0
-└── CONTRIBUTING.md
+│   ├── content-curator/              # Single agent example
+│   ├── compliance-checker/           # Agent with guardrails
+│   └── newsletter-pack/              # Multi-agent workflow
+├── sdk/python/
+│   ├── fylle_format/                 # Core SDK (parse, validate, build)
+│   ├── fylle_bridge/                 # Framework adapters + runner
+│   │   ├── adapters/                 # CrewAI, OpenAI translators
+│   │   ├── runner/                   # Live agent execution
+│   │   └── demo/                     # End-to-end demo script
+│   └── tests/                        # 44 tests, all passing
+├── cli/                              # CLI tool (planned)
+└── LICENSE                           # Apache 2.0
 ```
-
-## Relationship to other standards
-
-`.fylle` is complementary to existing standards:
-
-| Standard | Layer | Relationship to .fylle |
-|---|---|---|
-| **MCP** (Anthropic) | Tool access | `.fylle` declares which MCP servers an agent needs |
-| **A2A** (Google) | Agent communication | `.fylle` agents can be A2A participants |
-| **ADL** (Next Moca) | Agent schema | `.fylle` is a superset — adds packaging, skills, I/O |
-| **AGENTS.md** (OpenAI) | Project config | `.fylle` is structured and machine-readable |
 
 ## Status
 
-> **Early development** — the format is evolving. Feedback and contributions welcome.
+> **v0.1.0** — built for our own needs, shared in case it's useful to others.
 
-- [x] Format specification v0.1.0 (.fylle + .fyllepack)
-- [x] Python SDK (parse, validate, build)
-- [ ] .fyllepack SDK support (parse, validate, build packs)
-- [ ] CLI tool (`fylle validate`, `fylle pack`, `fylle inspect`)
-- [ ] LangChain adapter
-- [ ] CrewAI adapter
+- [x] Format specification v0.1.0
+- [x] Python SDK (parse, validate, build) — 44 tests passing
+- [x] CrewAI adapter (import/export)
+- [x] OpenAI Assistants adapter (import/export)
+- [x] Live agent runner (Anthropic + OpenAI)
+- [x] End-to-end demo
+- [ ] More adapters (AutoGen, Dify, LangChain)
+- [ ] CLI tool
 - [ ] npm SDK
-- [ ] Fylle Hub (marketplace)
+
+## Origin
+
+`.fylle` was born as an internal tool at [Fylle](https://fylle.ai), where we build AI-powered content workflows. We needed a way to define our agents independently from the frameworks we use — so that when the ecosystem changes (and it will), our agents survive.
+
+We open-sourced it because if you're building with AI agents, you probably have the same problem.
 
 ## Contributing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md). PRs for new framework adapters are especially welcome.
 
 ## License
 
 Apache 2.0 — see [LICENSE](LICENSE) for details.
-
----
-
-<p align="center">
-  Built by <a href="https://www.fylle.ai">Fylle</a> — AI-powered marketing automation.
-</p>

@@ -1,48 +1,60 @@
 # Contributing to .fylle
 
-Thank you for your interest in contributing to the .fylle format!
+We built `.fylle` for our own needs and open-sourced it in case it's useful to others. Contributions are welcome — especially new framework adapters.
+
+## What we'd love help with
+
+1. **New adapters** — AutoGen, LangChain, Dify, n8n, or any framework you use
+2. **Bug reports** — if you find issues parsing, building, or validating
+3. **Spec feedback** — if something in the format doesn't work for your use case
+4. **SDK ports** — TypeScript/npm, Go, Rust
 
 ## How to contribute
 
 ### Reporting issues
 
-- Use [GitHub Issues](https://github.com/DavideScanta/fylle-format/issues) for bugs and feature requests
-- For spec questions or discussions, use [GitHub Discussions](https://github.com/DavideScanta/fylle-format/discussions)
+Use [GitHub Issues](https://github.com/FylleAI/.fylle/issues) for bugs, feature requests, and spec discussions.
 
-### Proposing spec changes
+### Adding a new adapter
 
-The format specification is in `spec/SPECIFICATION.md`. To propose changes:
+The fastest way to contribute is adding a new framework adapter. Here's the pattern:
 
-1. Open an issue describing the change and its motivation
-2. Wait for discussion and consensus
-3. Submit a PR with the spec change + any SDK updates needed
+```python
+# sdk/python/fylle_bridge/adapters/your_framework_adapter.py
 
-### Contributing code
+from fylle_bridge.adapters.base import FrameworkAdapter
+from fylle_format.schema import FylleAgent
+
+class YourFrameworkAdapter(FrameworkAdapter):
+    @property
+    def framework_name(self) -> str:
+        return "YourFramework"
+
+    def to_fylle(self, source: dict) -> FylleAgent:
+        # Map framework config → FylleAgent
+        ...
+
+    def from_fylle(self, agent: FylleAgent) -> dict:
+        # Map FylleAgent → framework config
+        ...
+```
+
+Look at `crewai_adapter.py` and `openai_adapter.py` for working examples.
+
+### Development setup
+
+```bash
+cd sdk/python
+pip install -e ".[dev,bridge]"
+pytest  # 44 tests, all should pass
+```
+
+### Submitting code
 
 1. Fork the repository
 2. Create a branch for your change
 3. Write tests for new functionality
 4. Submit a PR with a clear description
-
-### Python SDK
-
-```bash
-cd sdk/python
-pip install -e ".[dev]"
-pytest
-```
-
-### CLI
-
-```bash
-cd cli
-npm install
-npm run dev -- validate path/to/agent
-```
-
-## Code of conduct
-
-Be kind, be constructive, be inclusive.
 
 ## License
 

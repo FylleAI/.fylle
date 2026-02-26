@@ -36,10 +36,14 @@ Repository = "https://github.com/DavideScanta/fylle-format"
 Issues = "https://github.com/DavideScanta/fylle-format/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["fylle_format"]
+packages = ["fylle_format", "fylle_bridge"]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0",
     "pytest-cov>=4.0",
+]
+bridge = [
+    "anthropic>=0.20",
+    "openai>=1.10",
 ]

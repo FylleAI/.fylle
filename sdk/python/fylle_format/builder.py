@@ -184,7 +184,7 @@ def create_fylle_from_scratch(
 
 def _manifest_to_dict(manifest: FylleManifest) -> dict:
     """Convert a FylleManifest to a clean dict for YAML serialization."""
-    data = manifest.model_dump(exclude_none=True, exclude_defaults=False)
+    data = manifest.model_dump(mode="json", exclude_none=True, exclude_defaults=False)
     # Clean up empty collections
     _remove_empty(data)
     return data
@@ -192,19 +192,19 @@ def _manifest_to_dict(manifest: FylleManifest) -> dict:
 
 def _skill_to_dict(skill: Skill) -> dict:
     """Convert a Skill to a dict for YAML serialization."""
-    data = skill.model_dump(exclude_none=True)
+    data = skill.model_dump(mode="json", exclude_none=True)
     _remove_empty(data)
     return data
 
 
 def _guardrails_to_dict(guardrails) -> dict:
     """Convert Guardrails to a dict for YAML serialization."""
-    return guardrails.model_dump(exclude_none=True)
+    return guardrails.model_dump(mode="json", exclude_none=True)
 
 
 def _memory_to_dict(memory) -> dict:
     """Convert MemorySchema to a dict for YAML serialization."""
-    return memory.model_dump(exclude_none=True)
+    return memory.model_dump(mode="json", exclude_none=True)
 
 
 def _remove_empty(d: dict) -> None:

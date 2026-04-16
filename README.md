@@ -20,8 +20,8 @@
 |---|---|
 | CrewAI YAML &harr; .fylle | Import/export CrewAI agent definitions |
 | OpenAI Assistants JSON &harr; .fylle | Import/export OpenAI assistant configs |
-| OpenClaw SOUL.md &rarr; .fylle | Import OpenClaw agent definitions |
-| .fylle &rarr; Claude Code workspace | Export full CLAUDE.md + settings + rules |
+| OpenClaw SOUL.md &harr; .fylle | Import/export OpenClaw agent definitions |
+| Claude Code workspace &harr; .fylle | Import/export CLAUDE.md + settings + rules |
 
 **Core SDK:**
 - Parser, builder, validator for the `.fylle` format
@@ -37,13 +37,19 @@ OpenClaw &rarr; .fylle &rarr; Claude Code in one command — writes CLAUDE.md, s
 ## Try the migration demo in 30 seconds
 
 ```bash
-git clone https://github.com/FylleAI/.fylle.git
-cd .fylle/sdk/python && pip install -e ".[bridge]"
+git clone https://github.com/FylleAI/.fylle.git fylle
+cd fylle/sdk/python && pip install -e .
+
+# This is the migration — one command:
 python fylle_bridge/demo/run_migration_demo.py --output ./my-agent
+
+# Then use your migrated agent:
 cd ./my-agent && claude
 ```
 
 No API key needed for the migration. The demo takes a sample OpenClaw agent, converts it through `.fylle`, and generates a ready-to-use Claude Code workspace.
+
+> Add `[bridge]` to the install (`pip install -e ".[bridge]"`) if you want live execution with Anthropic or OpenAI APIs.
 
 ---
 
@@ -115,6 +121,10 @@ agent = crewai_to_fylle({
     }
 })
 openai_config = fylle_to_openai(agent)
+
+# Or from an existing CrewAI YAML file:
+from fylle_bridge import crewai_to_fylle_yaml
+agent = crewai_to_fylle_yaml("my_crew/agents.yaml")
 ```
 
 ```python
@@ -170,8 +180,8 @@ newsletter-creator.fyllepack
 |---|---|
 | **CrewAI** | Bidirectional adapter. Import/export CrewAI YAML definitions |
 | **OpenAI Assistants** | Bidirectional adapter. Import/export assistant JSON configs |
-| **OpenClaw** | Import adapter. Reads SOUL.md agent definitions |
-| **Claude Code** | Export adapter. Generates CLAUDE.md + full workspace |
+| **OpenClaw** | Bidirectional adapter. Import/export SOUL.md agent definitions |
+| **Claude Code** | Bidirectional adapter. Import/export CLAUDE.md + full workspace |
 | **Claude Agent SDK** | Planned adapter. Next priority |
 | **LangGraph** | Planned adapter. Graph-based workflow mapping |
 
@@ -185,8 +195,8 @@ newsletter-creator.fyllepack
 - `.fyllepack` multi-agent format
 - CrewAI adapter (import + export)
 - OpenAI Assistants adapter (import + export)
-- OpenClaw adapter (import)
-- Claude Code adapter (export)
+- OpenClaw adapter (import + export)
+- Claude Code adapter (import + export)
 - Simple runner (Anthropic + OpenAI)
 - OpenClaw → Claude Code full migration pipeline
 - 72 tests passing

@@ -1,60 +1,69 @@
 <p align="center">
   <h1 align="center">.fylle</h1>
-  <p align="center"><strong>A portable format for AI agents.</strong></p>
-  <p align="center">Define your agents once. Run them on any framework.</p>
+  <p align="center"><strong>Move AI agents between frameworks without rewriting them.</strong></p>
+  <p align="center">CrewAI &rarr; .fylle &rarr; OpenAI. &nbsp; OpenClaw &rarr; .fylle &rarr; Claude Code. &nbsp; Works today.</p>
 </p>
 
 <p align="center">
-  <a href="#the-problem">Problem</a> &middot;
-  <a href="#how-it-works">How it works</a> &middot;
-  <a href="#bridge">Bridge</a> &middot;
-  <a href="#migrate-from-openclaw">Migrate from OpenClaw</a> &middot;
-  <a href="#quickstart">Quickstart</a> &middot;
-  <a href="spec/SPECIFICATION.md">Spec</a>
+  <img src="assets/demo.gif" alt=".fylle migration demo — OpenClaw to Claude Code" width="700">
 </p>
 
 ---
 
-<p align="center">
-  <img src="demo.gif" alt=".fylle demo — CrewAI to OpenAI bridge" width="700">
-</p>
+## What works today
+
+`.fylle` is a migration compiler for AI agents. You define an agent once in a portable YAML+Markdown format, then import/export it across frameworks.
+
+**4 framework adapters, all working:**
+
+| Direction | What happens |
+|---|---|
+| CrewAI YAML &harr; .fylle | Import/export CrewAI agent definitions |
+| OpenAI Assistants JSON &harr; .fylle | Import/export OpenAI assistant configs |
+| OpenClaw SOUL.md &rarr; .fylle | Import OpenClaw agent definitions |
+| .fylle &rarr; Claude Code workspace | Export full CLAUDE.md + settings + rules |
+
+**Core SDK:**
+- Parser, builder, validator for the `.fylle` format
+- `.fyllepack` format for multi-agent workflows
+- Simple runner (Anthropic + OpenAI live execution)
+- 72 tests, all passing
+
+**Full migration pipeline:**
+OpenClaw &rarr; .fylle &rarr; Claude Code in one command — writes CLAUDE.md, settings.json, rules, and MCP config to disk. Then you run `claude` and your agent is live.
 
 ---
 
-## The problem
+## Try the migration demo in 30 seconds
 
-We build AI agents for our platform [Fylle](https://fylle.ai). One day we realized: if the framework we use changes its API, gets acquired, or something better comes out — we have to rewrite everything.
+```bash
+git clone https://github.com/FylleAI/.fylle.git
+cd .fylle/sdk/python && pip install -e ".[bridge]"
+python fylle_bridge/demo/run_migration_demo.py --output ./my-agent
+cd ./my-agent && claude
+```
 
-Our agents were locked inside the runtime. The prompts, the model configs, the tool declarations, the guardrails — all coupled to one framework.
+No API key needed for the migration. The demo takes a sample OpenClaw agent, converts it through `.fylle`, and generates a ready-to-use Claude Code workspace.
 
-We needed a way to **define agents independently from the runtime**, so we could:
+---
 
-- Switch frameworks without rewriting agents
-- Version agent definitions in Git
-- Share agents across teams and projects
-- Test and validate agents before deploying them
+## How it works
 
-So we built `.fylle`.
-
-## What is .fylle?
-
-A `.fylle` file is a ZIP archive that contains a complete AI agent definition:
+A `.fylle` file is a ZIP archive containing a complete agent definition:
 
 ```
 my-agent.fylle
 ├── manifest.yaml      # Identity, model, inputs/outputs, tools
-├── agent.md           # System prompt — the agent's personality
+├── agent.md           # System prompt
 ├── guardrails.yaml    # Rules, limits, constraints (optional)
 ├── skills/            # Modular capabilities (optional)
 ├── memory-schema.yaml # What the agent remembers (optional)
-└── README.md          # Human documentation (optional)
+└── README.md          # Documentation (optional)
 ```
 
-It's **declarative** — it says WHAT the agent is, not HOW to run it. Any runtime reads the parts it understands and ignores the rest.
+It's YAML and Markdown. Any runtime reads what it understands, ignores the rest.
 
-## How it works
-
-### 1. Define your agent
+### Define an agent
 
 ```yaml
 # manifest.yaml
@@ -92,128 +101,45 @@ agent:
       max_iterations: 30
 ```
 
-### 2. Parse, validate, build — with the Python SDK
+### Migrate between frameworks
 
 ```python
-from fylle_format import parse_fylle_package, validate, build_fylle_package
+from fylle_bridge import crewai_to_fylle, fylle_to_openai
 
-# Parse
-agent = parse_fylle_package("my-agent.fylle")
-print(agent.manifest.agent.name)   # "Content Curator"
-print(agent.personality)            # Full system prompt
-
-# Validate
-result = validate(agent)
-print(result.valid)     # True
-print(result.warnings)  # [...]
-```
-
-### 3. Run on any framework
-
-The `.fylle` format is runtime-agnostic. Each framework reads what it needs:
-
-| Runtime | What it reads from .fylle |
-|---|---|
-| **CrewAI** | role → role, description → goal, agent.md → backstory |
-| **OpenAI Assistants** | name, agent.md → instructions, tools, temperature |
-| **LangChain** | model, agent.md → system prompt, tools |
-| **Your runtime** | Read the manifest, use what you need |
-
-## Bridge
-
-The bridge is where `.fylle` gets practical. It translates agents between frameworks — with `.fylle` as the interchange format in the middle.
-
-**Today it supports:**
-
-| From | To | Status |
-|---|---|---|
-| CrewAI (YAML) | .fylle | Working |
-| .fylle | CrewAI (YAML) | Working |
-| OpenAI Assistants (JSON) | .fylle | Working |
-| .fylle | OpenAI Assistants (JSON) | Working |
-| **OpenClaw (SOUL.md)** | **.fylle** | **Working** |
-| **.fylle** | **Claude Code (CLAUDE.md)** | **Working** |
-| .fylle | Live execution (Claude / GPT) | Working |
-
-### Import a CrewAI agent, export to OpenAI — in 5 lines
-
-```python
-from fylle_bridge import crewai_to_fylle, fylle_to_openai, run_fylle_agent
-
-# CrewAI YAML → .fylle
-agent = crewai_to_fylle({"researcher": {"role": "Analyst", "goal": "Research trends", "backstory": "You are an expert analyst..."}})
-
-# .fylle → OpenAI Assistant JSON
+# CrewAI YAML → .fylle → OpenAI Assistant JSON
+agent = crewai_to_fylle({
+    "researcher": {
+        "role": "Analyst",
+        "goal": "Research trends",
+        "backstory": "You are an expert analyst..."
+    }
+})
 openai_config = fylle_to_openai(agent)
-# → {"model": "gpt-4o", "name": "Researcher", "instructions": "You are an expert analyst...", ...}
-
-# Or just run it
-response = run_fylle_agent(agent, {"task": "Analyze AI agent standards"})
 ```
-
-### Run the demo
-
-```bash
-cd sdk/python
-
-# Install
-pip install -e ".[bridge]"
-
-# Run (no API key needed)
-python fylle_bridge/demo/run_demo.py --dry-run
-
-# Run with live execution
-ANTHROPIC_API_KEY=sk-... python fylle_bridge/demo/run_demo.py
-```
-
-The demo shows the full flow: **CrewAI YAML → .fylle → validate → build package → OpenAI JSON → live execution**.
-
-## Migrate from OpenClaw
-
-Moving from OpenClaw to Claude Code? `.fylle` handles the migration. Your SOUL.md agent definition goes in, a complete Claude Code workspace comes out — CLAUDE.md, settings, rules, everything.
 
 ```python
 from fylle_bridge import openclaw_to_fylle, fylle_to_claude_code
 
-# Step 1: Import your OpenClaw agent
+# OpenClaw SOUL.md → .fylle → Claude Code workspace
 agent = openclaw_to_fylle(open("SOUL.md").read())
-
-# Step 2: Export to Claude Code
 workspace = fylle_to_claude_code(agent)
-
-# workspace contains:
-# - claude_md:      CLAUDE.md content (your system prompt)
-# - settings_json:  .claude/settings.json (model, permissions)
-# - rules:          .claude/rules/*.md (your agent rules)
-# - mcp_json:       .mcp.json (tool config, if any)
+# → CLAUDE.md, settings.json, rules/*.md, .mcp.json
 ```
 
-### Run the migration demo
+### Run the bridge demo
 
 ```bash
 cd sdk/python
 pip install -e ".[bridge]"
 
-# Migrate with sample agent
-python fylle_bridge/demo/run_migration_demo.py
+# Dry run (no API key needed)
+python fylle_bridge/demo/run_demo.py --dry-run
 
-# Migrate your own agent and write files to disk
-python fylle_bridge/demo/run_migration_demo.py --soul /path/to/SOUL.md --output ./my-project
-
-# Then use Claude Code directly
-cd ./my-project && claude
+# Live execution
+ANTHROPIC_API_KEY=sk-... python fylle_bridge/demo/run_demo.py
 ```
 
-### What gets migrated
-
-| OpenClaw (SOUL.md) | Claude Code | Notes |
-|---|---|---|
-| `# AgentName` | CLAUDE.md title | Agent name |
-| `## Personality` | CLAUDE.md body | System prompt |
-| `## Rules` | `.claude/rules/agent-rules.md` | One rule per line |
-| `## Skills` | Tool declarations | Preserved in .fylle |
-| `## Identity → Model` | `settings.json → model` | Provider prefix stripped |
-| `## Greeting`, `USER.md` | `extensions.openclaw` | Preserved for roundtrip |
+---
 
 ## Two formats
 
@@ -227,104 +153,80 @@ cd ./my-project && claude
 newsletter-creator.fyllepack
 ├── manifest.yaml
 ├── agents/
-│   ├── curator.fylle      # Each agent is independently valid
+│   ├── curator.fylle
 │   ├── writer.fylle
 │   └── reviewer.fylle
-├── brief_schema.yaml      # Questions before execution
+├── brief_schema.yaml
 └── README.md
 ```
 
-## Design principles
-
-1. **Declarative** — describes what the agent IS, not how to execute it
-2. **Human-readable** — YAML and Markdown, no proprietary formats
-3. **Graceful degradation** — unknown fields are ignored, not rejected
-4. **Extensions welcome** — any runtime can add its own block under `extensions:`
-5. **Security by default** — guardrails, autonomy limits, and validation built in
+---
 
 ## Relationship to other standards
 
-`.fylle` doesn't replace existing standards — it sits alongside them:
+`.fylle` is not trying to replace any framework — it sits between them as a translation layer.
 
-| Standard | What it does | How .fylle relates |
-|---|---|---|
-| **MCP** (Anthropic) | Connects agents to tools | `.fylle` declares which MCP servers an agent needs |
-| **A2A** (Google) | Agent-to-agent communication | `.fylle` agents can participate in A2A |
-| **OAF** | Agent format (YAML + Markdown) | Similar goals — `.fylle` adds packaging and bridge |
-| **Agent Spec** (Oracle/Google) | Agent schema (JSON/YAML) | Complementary — `.fylle` focuses on portability |
+| Standard / Framework | Relationship |
+|---|---|
+| **CrewAI** | Bidirectional adapter. Import/export CrewAI YAML definitions |
+| **OpenAI Assistants** | Bidirectional adapter. Import/export assistant JSON configs |
+| **OpenClaw** | Import adapter. Reads SOUL.md agent definitions |
+| **Claude Code** | Export adapter. Generates CLAUDE.md + full workspace |
+| **Claude Agent SDK** | Planned adapter. Next priority |
+| **LangGraph** | Planned adapter. Graph-based workflow mapping |
 
-## Quickstart
+---
 
-```bash
-# Install the SDK
-pip install fylle-format
+## Status
 
-# Install with bridge adapters (for CrewAI/OpenAI translation)
-pip install "fylle-format[bridge]"
-```
+**Done:**
+- Format specification v0.1.0
+- Python SDK — parser, builder, validator
+- `.fyllepack` multi-agent format
+- CrewAI adapter (import + export)
+- OpenAI Assistants adapter (import + export)
+- OpenClaw adapter (import)
+- Claude Code adapter (export)
+- Simple runner (Anthropic + OpenAI)
+- OpenClaw → Claude Code full migration pipeline
+- 72 tests passing
 
-```python
-from fylle_format import create_fylle_from_scratch, build_fylle_package, validate
+**Coming:**
+- Python CLI
+- `.fyllepack` runner (multi-agent orchestration)
+- Claude Agent SDK adapter
+- LangGraph adapter
+- Fylle Hub (agent registry)
 
-# Create an agent
-agent = create_fylle_from_scratch(
-    name="My Agent",
-    description="Does amazing things",
-    personality="You are a helpful assistant specialized in...",
-    author_name="Your Name",
-)
-
-# Validate
-result = validate(agent)
-print(result.valid)  # True
-
-# Package it
-build_fylle_package(agent, "my-agent.fylle")
-```
+---
 
 ## Project structure
 
 ```
 .fylle/
 ├── spec/
-│   └── SPECIFICATION.md              # Format specification v0.1.0
+│   └── SPECIFICATION.md           # Format specification v0.1.0
 ├── examples/
-│   ├── content-curator/              # Single agent example
-│   ├── compliance-checker/           # Agent with guardrails
-│   └── newsletter-pack/              # Multi-agent workflow
+│   ├── content-curator/           # Single agent example
+│   ├── compliance-checker/        # Agent with guardrails
+│   └── newsletter-pack/          # Multi-agent workflow
 ├── sdk/python/
-│   ├── fylle_format/                 # Core SDK (parse, validate, build)
-│   ├── fylle_bridge/                 # Framework adapters + runner
-│   │   ├── adapters/                 # CrewAI, OpenAI, OpenClaw, Claude Code
-│   │   ├── runner/                   # Live agent execution
-│   │   └── demo/                     # Bridge demo + migration demo
-│   └── tests/                        # 72 tests, all passing
-├── cli/                              # CLI tool (planned)
-└── LICENSE                           # Apache 2.0
+│   ├── fylle_format/              # Core SDK (parse, validate, build)
+│   ├── fylle_bridge/              # Framework adapters + runner
+│   │   ├── adapters/              # CrewAI, OpenAI, OpenClaw, Claude Code
+│   │   ├── runner/                # Live agent execution
+│   │   └── demo/                  # Bridge demo + migration demo
+│   └── tests/                     # 72 tests
+├── assets/
+│   └── demo.gif                   # Migration demo recording
+└── LICENSE                        # Apache 2.0
 ```
 
-## Status
+## Why this exists
 
-> **v0.1.0** — built for our own needs, shared in case it's useful to others.
+We build AI-powered content workflows at [Fylle](https://fylle.ai). Our agents were locked inside one framework — every time the API changed or something better came out, we had to rewrite everything.
 
-- [x] Format specification v0.1.0
-- [x] Python SDK (parse, validate, build) — 72 tests passing
-- [x] CrewAI adapter (import/export)
-- [x] OpenAI Assistants adapter (import/export)
-- [x] **OpenClaw adapter** (SOUL.md import/export)
-- [x] **Claude Code adapter** (CLAUDE.md + settings + rules export)
-- [x] **OpenClaw → Claude Code migration** (full pipeline)
-- [x] Live agent runner (Anthropic + OpenAI)
-- [x] End-to-end demos (bridge + migration)
-- [ ] More adapters (AutoGen, Dify, LangChain)
-- [ ] CLI tool
-- [ ] npm SDK
-
-## Origin
-
-`.fylle` was born as an internal tool at [Fylle](https://fylle.ai), where we build AI-powered content workflows. We needed a way to define our agents independently from the frameworks we use — so that when the ecosystem changes (and it will), our agents survive.
-
-We open-sourced it because if you're building with AI agents, you probably have the same problem.
+`.fylle` started as our internal migration tool. We open-sourced it because if you work with AI agents across multiple frameworks, you probably have the same problem.
 
 ## Contributing
 

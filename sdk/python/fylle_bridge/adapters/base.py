@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 
-from fylle_format.schema import FylleAgent
+from fylle.schema import FylleAgent
 
 
 class FrameworkAdapter(ABC):

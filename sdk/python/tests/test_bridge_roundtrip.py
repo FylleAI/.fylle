@@ -9,7 +9,7 @@ from pathlib import Path
 import yaml
 import pytest
 
-from fylle_format import build_fylle_package, parse_fylle_package, validate
+from fylle import build_fylle_package, parse_fylle_package, validate
 from fylle_bridge.adapters.crewai_adapter import crewai_to_fylle, fylle_to_crewai
 from fylle_bridge.adapters.openai_adapter import fylle_to_openai, openai_to_fylle
 
@@ -135,7 +135,7 @@ class TestExistingExampleConversion:
 
     def test_content_curator_to_crewai(self):
         """Convert the existing content-curator example to CrewAI format."""
-        from fylle_format import parse_fylle_package, create_fylle_from_scratch
+        from fylle import parse_fylle_package, create_fylle_from_scratch
 
         # Create a FylleAgent matching the content-curator example
         agent = create_fylle_from_scratch(
@@ -157,7 +157,7 @@ class TestExistingExampleConversion:
 
     def test_content_curator_to_openai(self):
         """Convert the existing content-curator example to OpenAI format."""
-        from fylle_format import create_fylle_from_scratch
+        from fylle import create_fylle_from_scratch
 
         agent = create_fylle_from_scratch(
             name="Content Curator",

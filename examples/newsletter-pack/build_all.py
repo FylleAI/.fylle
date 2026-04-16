@@ -20,9 +20,9 @@ import yaml
 # Ensure the SDK is importable when running from repo root
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "sdk" / "python"))
 
-from fylle_format.schema import FylleAgent, FylleManifest, Skill
-from fylle_format.validator import validate
-from fylle_format.builder import build_fylle_package
+from fylle.schema import FylleAgent, FylleManifest, Skill
+from fylle.validator import validate
+from fylle.builder import build_fylle_package
 
 
 AGENTS_DIR = Path(__file__).parent / "agents"

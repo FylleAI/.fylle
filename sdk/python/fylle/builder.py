@@ -13,7 +13,7 @@ from pathlib import Path
 
 import yaml
 
-from fylle_format.schema import (
+from fylle.schema import (
     AgentAuthor,
     AgentIdentity,
     AgentInput,

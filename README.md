@@ -221,7 +221,7 @@ newsletter-creator.fyllepack
 │   ├── compliance-checker/        # Agent with guardrails
 │   └── newsletter-pack/          # Multi-agent workflow
 ├── sdk/python/
-│   ├── fylle_format/              # Core SDK (parse, validate, build)
+│   ├── fylle/                     # Core SDK (parse, validate, build)
 │   ├── fylle_bridge/              # Framework adapters + runner
 │   │   ├── adapters/              # CrewAI, OpenAI, OpenClaw, Claude Code
 │   │   ├── runner/                # Live agent execution

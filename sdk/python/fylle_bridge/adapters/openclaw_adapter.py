@@ -35,7 +35,7 @@ from __future__ import annotations
 import re
 from typing import Any
 
-from fylle_format.schema import (
+from fylle.schema import (
     AgentAuthor,
     AgentIdentity,
     AgentInput,

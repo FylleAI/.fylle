@@ -26,7 +26,7 @@ if str(SDK_ROOT) not in sys.path:
 
 import yaml
 
-from fylle_format import build_fylle_package, parse_fylle_package, validate
+from fylle import build_fylle_package, parse_fylle_package, validate
 from fylle_bridge.adapters.crewai_adapter import crewai_to_fylle
 from fylle_bridge.adapters.openai_adapter import fylle_to_openai
 

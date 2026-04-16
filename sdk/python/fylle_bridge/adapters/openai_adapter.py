@@ -20,7 +20,7 @@ from __future__ import annotations
 import json
 from typing import Any
 
-from fylle_format.schema import (
+from fylle.schema import (
     AgentAuthor,
     AgentIdentity,
     AgentInput,

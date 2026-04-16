@@ -25,7 +25,7 @@ A research agent that finds and curates relevant content for marketing newslette
 ## Usage
 
 ```python
-from fylle_format import parse_fylle_package
+from fylle import parse_fylle_package
 
 agent = parse_fylle_package("content-curator.fylle")
 # Pass to your runtime of choice

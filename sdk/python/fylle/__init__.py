@@ -1,10 +1,10 @@
 """
-fylle-format: The portable format for AI agents.
+fylle: Move AI agents between frameworks without rewriting them.
 
-Parse, validate, and build .fylle agent packages and .fyllepack workflow packages.
+Parse, validate, bridge, and run .fylle agent packages.
 """
 
-from fylle_format.schema import (
+from fylle.schema import (
     # .fylle (single agent)
     FylleAgent,
     FylleManifest,
@@ -42,9 +42,9 @@ from fylle_format.schema import (
     BriefSchema,
     BriefQuestion,
 )
-from fylle_format.parser import parse_fylle_package, unpack_fylle_to_dir
-from fylle_format.validator import validate, ValidationResult
-from fylle_format.builder import build_fylle_package, create_fylle_from_scratch
+from fylle.parser import parse_fylle_package, unpack_fylle_to_dir
+from fylle.validator import validate, ValidationResult
+from fylle.builder import build_fylle_package, create_fylle_from_scratch
 
 __version__ = "0.1.0"
 

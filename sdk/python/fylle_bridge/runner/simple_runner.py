@@ -10,7 +10,7 @@ import os
 import sys
 from typing import Any
 
-from fylle_format.schema import FylleAgent
+from fylle.schema import FylleAgent
 
 
 def run_fylle_agent(

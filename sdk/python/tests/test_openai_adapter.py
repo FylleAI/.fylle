@@ -4,7 +4,7 @@ import json
 import pytest
 
 from fylle_bridge.adapters.openai_adapter import openai_to_fylle, fylle_to_openai
-from fylle_format.schema import ModelCapability
+from fylle.schema import ModelCapability
 
 
 SAMPLE_OPENAI = {

@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "description": "CLI tool for the .fylle portable AI agent format",
   "license": "Apache-2.0",
-  "author": "Fylle <hello@fylle.ai>",
+  "author": "Fylle <davide@fylle.ai>",
   "repository": {
     "type": "git",
-    "url": "https://github.com/DavideScanta/fylle-format.git",
+    "url": "https://github.com/FylleAI/.fylle.git",
     "directory": "cli"
   },
   "keywords": ["fylle", "ai", "agents", "cli", "format"],

@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from fylle_format.schema import FylleAgent, MaxAutonomy
+from fylle.schema import FylleAgent, MaxAutonomy
 
 
 @dataclass

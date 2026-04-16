@@ -24,8 +24,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
 from fylle_bridge.adapters.openclaw_adapter import openclaw_to_fylle
 from fylle_bridge.adapters.claude_code_adapter import fylle_to_claude_code
-from fylle_format.validator import validate
-from fylle_format.builder import build_fylle_package
+from fylle.validator import validate
+from fylle.builder import build_fylle_package
 
 
 # ── Terminal colors ──

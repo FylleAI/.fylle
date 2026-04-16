@@ -7,13 +7,13 @@ from pathlib import Path
 
 import pytest
 
-from fylle_format import (
+from fylle import (
     build_fylle_package,
     create_fylle_from_scratch,
     parse_fylle_package,
     validate,
 )
-from fylle_format.parser import FylleParseError, FylleSecurityError
+from fylle.parser import FylleParseError, FylleSecurityError
 
 
 class TestCreateAndParse:

@@ -23,7 +23,7 @@ The fastest way to contribute is adding a new framework adapter. Here's the patt
 # sdk/python/fylle_bridge/adapters/your_framework_adapter.py
 
 from fylle_bridge.adapters.base import FrameworkAdapter
-from fylle_format.schema import FylleAgent
+from fylle.schema import FylleAgent
 
 class YourFrameworkAdapter(FrameworkAdapter):
     @property

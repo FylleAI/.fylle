@@ -79,7 +79,7 @@ agent:
     - "curation"
     - "newsletter"
   category: "content"
-  repository: "https://github.com/DavideScanta/fylle-format"
+  repository: "https://github.com/FylleAI/.fylle"
 
   # ── EXTENSIONS ──
   extensions:

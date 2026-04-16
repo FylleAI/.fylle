@@ -16,7 +16,7 @@ from typing import BinaryIO
 
 import yaml
 
-from fylle_format.schema import (
+from fylle.schema import (
     FylleAgent,
     FylleManifest,
     Guardrails,

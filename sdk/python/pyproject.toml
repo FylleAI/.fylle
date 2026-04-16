@@ -3,14 +3,14 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "fylle-format"
+name = "fylle"
 version = "0.1.0"
-description = "The portable format for AI agents. Parse, validate, and build .fylle packages."
+description = "Move AI agents between frameworks without rewriting them. Parse, validate, bridge, and run .fylle packages."
 readme = "../../README.md"
 license = "Apache-2.0"
 requires-python = ">=3.10"
 authors = [
-    { name = "Fylle", email = "hello@fylle.ai" },
+    { name = "Fylle", email = "davide@fylle.ai" },
 ]
 keywords = ["ai", "agents", "format", "portable", "fylle", "mcp"]
 classifiers = [
@@ -30,13 +30,13 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/DavideScanta/fylle-format"
-Documentation = "https://github.com/DavideScanta/fylle-format/tree/main/spec"
-Repository = "https://github.com/DavideScanta/fylle-format"
-Issues = "https://github.com/DavideScanta/fylle-format/issues"
+Homepage = "https://github.com/FylleAI/.fylle"
+Documentation = "https://github.com/FylleAI/.fylle/tree/main/spec"
+Repository = "https://github.com/FylleAI/.fylle"
+Issues = "https://github.com/FylleAI/.fylle/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["fylle_format", "fylle_bridge"]
+packages = ["fylle", "fylle_bridge"]
 
 [project.optional-dependencies]
 dev = [

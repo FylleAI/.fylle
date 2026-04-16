@@ -53,6 +53,30 @@ No API key needed for the migration. The demo takes a sample OpenClaw agent, con
 
 ---
 
+## CLI
+
+After installing, the `fylle` command is available:
+
+```bash
+# Scaffold a new agent
+fylle init "My Agent"
+
+# Package and validate
+fylle pack my-agent/
+fylle validate my-agent.fylle
+
+# Migrate between frameworks
+fylle migrate --from openclaw --to claude-code SOUL.md -o ./workspace
+fylle migrate --from crewai --to openai agents.yaml -o assistant.json
+
+# Inspect a package
+fylle inspect my-agent.fylle
+```
+
+Run `fylle --help` for the full command reference.
+
+---
+
 ## How it works
 
 A `.fylle` file is a ZIP archive containing a complete agent definition:
@@ -199,10 +223,10 @@ newsletter-creator.fyllepack
 - Claude Code adapter (import + export)
 - Simple runner (Anthropic + OpenAI)
 - OpenClaw → Claude Code full migration pipeline
-- 72 tests passing
+- Python CLI (6 commands: validate, inspect, pack, unpack, init, migrate)
+- 83 tests passing
 
 **Coming:**
-- Python CLI
 - `.fyllepack` runner (multi-agent orchestration)
 - Claude Agent SDK adapter
 - LangGraph adapter
@@ -226,7 +250,8 @@ newsletter-creator.fyllepack
 │   │   ├── adapters/              # CrewAI, OpenAI, OpenClaw, Claude Code
 │   │   ├── runner/                # Live agent execution
 │   │   └── demo/                  # Bridge demo + migration demo
-│   └── tests/                     # 72 tests
+│   ├── fylle_cli/                 # CLI (validate, inspect, pack, migrate...)
+│   └── tests/                     # 83 tests
 ├── assets/
 │   └── demo.gif                   # Migration demo recording
 └── LICENSE                        # Apache 2.0

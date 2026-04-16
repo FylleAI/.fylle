@@ -27,6 +27,8 @@ classifiers = [
 dependencies = [
     "pydantic>=2.0",
     "pyyaml>=6.0",
+    "click>=8.0",
+    "rich>=13.0",
 ]
 
 [project.urls]
@@ -36,7 +38,10 @@ Repository = "https://github.com/FylleAI/.fylle"
 Issues = "https://github.com/FylleAI/.fylle/issues"
 
 [tool.hatch.build.targets.wheel]
-packages = ["fylle", "fylle_bridge"]
+packages = ["fylle", "fylle_bridge", "fylle_cli"]
+
+[project.scripts]
+fylle = "fylle_cli.main:cli"
 
 [project.optional-dependencies]
 dev = [

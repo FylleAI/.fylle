@@ -33,6 +33,13 @@ from fylle_cli._templates import MANIFEST_YAML, AGENT_MD
 @click.argument("path", type=click.Path(exists=True))
 def validate_cmd(path: str):
     """Validate a .fylle package."""
+    if Path(path).is_dir():
+        print_error(
+            f"'{path}' is a directory, not a .fylle file. "
+            f"Run `fylle pack {path}` first, then validate the .fylle output."
+        )
+        sys.exit(1)
+
     try:
         agent = parse_fylle_package(path)
     except (FylleParseError, FylleSecurityError) as e:
@@ -52,6 +59,13 @@ def validate_cmd(path: str):
 @click.argument("file", type=click.Path(exists=True))
 def inspect_cmd(file: str):
     """Show a summary of a .fylle package."""
+    if Path(file).is_dir():
+        print_error(
+            f"'{file}' is a directory, not a .fylle file. "
+            f"Run `fylle pack {file}` first, then inspect the .fylle output."
+        )
+        sys.exit(1)
+
     try:
         agent = parse_fylle_package(file)
     except (FylleParseError, FylleSecurityError) as e:

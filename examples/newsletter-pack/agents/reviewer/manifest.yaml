@@ -1,0 +1,66 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Newsletter Reviewer"
+  version: "1.0.0"
+  description: "Reviews newsletter content for quality, compliance, and brand alignment"
+  role: "Content Reviewer"
+
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+
+  model:
+    preferred: "claude-sonnet-4-5"
+    minimum_capability:
+      - "long-context"
+    settings:
+      temperature: 0.3
+      max_tokens: 2000
+
+  prompt_file: "agent.md"
+  tone: "precise, constructive"
+  language:
+    - "en"
+    - "it"
+
+  inputs:
+    - name: "content_to_review"
+      type: "text"
+      required: true
+      description: "The newsletter draft from the writer agent"
+    - name: "brand_guidelines"
+      type: "text"
+      required: false
+      description: "Brand guidelines to check against"
+
+  output:
+    format: "json"
+
+  tools: {}
+
+  skills:
+    - ref: "skills/compliance-check.yaml"
+
+  guardrails:
+    max_autonomy: "draft-only"
+    limits:
+      max_iterations: 5
+      max_tokens_per_response: 2000
+
+  tags:
+    - "review"
+    - "compliance"
+    - "quality"
+    - "newsletter"
+  category: "content"
+
+  extensions:
+    fylle:
+      original_agent_name: "reviewer"
+      feedback_loop:
+        enabled: true
+        metrics:
+          - "approval_rate"
+          - "revision_count"

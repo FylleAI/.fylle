@@ -1,0 +1,73 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Newsletter Curator"
+  version: "1.0.0"
+  description: "Researches topics and curates sources for newsletter content"
+  role: "Research Specialist"
+
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+
+  model:
+    preferred: "claude-sonnet-4-5"
+    minimum_capability:
+      - "tool-use"
+    settings:
+      temperature: 0.7
+      max_tokens: 4000
+
+  prompt_file: "agent.md"
+  tone: "professional, analytical"
+  language:
+    - "en"
+    - "it"
+
+  inputs:
+    - name: "topic"
+      type: "text"
+      required: true
+      description: "The subject to research and curate content about"
+    - name: "brand_context"
+      type: "text"
+      required: false
+      description: "Brand voice, tone guidelines, and positioning"
+    - name: "target_audience"
+      type: "text"
+      required: false
+      description: "Description of the target audience"
+
+  output:
+    format: "markdown"
+
+  tools:
+    required:
+      - name: "web_search"
+        protocol: "mcp"
+        description: "Search the web for current information and trends"
+
+  skills:
+    - ref: "skills/research.yaml"
+
+  guardrails:
+    max_autonomy: "draft-only"
+    limits:
+      max_iterations: 30
+      max_tokens_per_response: 4000
+
+  tags:
+    - "research"
+    - "curation"
+    - "newsletter"
+  category: "content"
+
+  extensions:
+    fylle:
+      original_agent_name: "curator"
+      feedback_loop:
+        enabled: true
+        metrics:
+          - "content_engagement"
+          - "approval_rate"

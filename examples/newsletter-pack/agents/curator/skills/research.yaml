@@ -1,0 +1,38 @@
+skill:
+  name: "Web Research"
+  version: "1.0.0"
+  description: "Searches the web for current information and synthesizes findings into actionable insights for newsletter content."
+
+  triggers:
+    - "research this topic"
+    - "find information about"
+    - "what's trending in"
+    - "curate content about"
+
+  instructions: |
+    When performing web research:
+    1. Break the topic into 2-3 specific search queries
+    2. Execute searches using the web_search tool
+    3. Evaluate source credibility (prefer established publications, official sources)
+    4. Cross-reference claims across multiple sources
+    5. Synthesize findings — don't just list links, extract insights
+    6. Note any contradictions or debates in the space
+    7. Flag if the topic is rapidly evolving and findings may change
+
+  tools_used:
+    - "web_search"
+
+  output_format: "markdown"
+
+  input_schema:
+    type: "object"
+    properties:
+      topic:
+        type: "string"
+        description: "The subject to research"
+      depth:
+        type: "string"
+        enum: ["quick", "standard", "deep"]
+        description: "How thorough the research should be"
+    required:
+      - "topic"

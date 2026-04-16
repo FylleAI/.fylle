@@ -1,0 +1,37 @@
+skill:
+  name: "Content Compliance Check"
+  version: "1.0.0"
+  description: "Reviews content against brand guidelines, factual accuracy, and quality standards. Produces a structured compliance report."
+
+  triggers:
+    - "review this content"
+    - "check compliance"
+    - "quality check"
+    - "review the newsletter"
+
+  instructions: |
+    When reviewing content:
+    1. Read the entire draft before making judgments
+    2. Check factual claims against cited sources
+    3. Evaluate tone and voice against brand guidelines (if provided)
+    4. Assess structural quality (headings, paragraph length, CTA clarity)
+    5. Flag any compliance issues (misleading claims, missing attributions)
+    6. Score each dimension and compute overall score
+    7. For every issue flagged, provide a specific suggestion to fix it
+    8. List strengths — what the writer did well
+
+  tools_used: []
+
+  output_format: "json"
+
+  input_schema:
+    type: "object"
+    properties:
+      content:
+        type: "string"
+        description: "The newsletter draft to review"
+      guidelines:
+        type: "string"
+        description: "Brand guidelines to check against"
+    required:
+      - "content"

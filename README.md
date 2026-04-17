@@ -34,22 +34,46 @@ OpenClaw &rarr; .fylle &rarr; Claude Code in one command — writes CLAUDE.md, s
 
 ---
 
+## Why agents stay portable: opaque context refs
+
+A `.fylle` agent never hard-codes _where_ its context comes from. It declares **what** it needs — by reference — and the runtime decides **how** to resolve it.
+
+```yaml
+# In manifest.yaml — the agent only says "I need brand, audience, and compliance context".
+extensions:
+  fylle:
+    context_sources:
+      - type: "brand"
+      - type: "audience"
+      - type: "compliance"
+
+# In agent.md you reference them by the input name the runtime will inject:
+# "Use the `brand_context` input to align tone with the brand voice."
+```
+
+These references are **opaque**. A runtime can satisfy `brand` from a database row, a vector store, a Markdown file in the workspace, or a live API — the agent doesn't know and doesn't care. Same `.fylle` package, different runtimes, different storage backends, no rewrite.
+
+This is what makes `.fylle` more than YAML-as-config: the format separates _what an agent depends on_ from _how that dependency is fulfilled_. Adapters preserve these refs across frameworks; runtimes resolve them locally.
+
+---
+
 ## Try the migration demo in 30 seconds
 
 ```bash
-git clone https://github.com/FylleAI/.fylle.git fylle
-cd fylle/sdk/python && pip install -e .
+pip install fylle
 
 # This is the migration — one command:
-python fylle_bridge/demo/run_migration_demo.py --output ./my-agent
+python -m fylle_bridge.demo.run_migration_demo --output ./my-agent
 
 # Then use your migrated agent:
 cd ./my-agent && claude
 ```
 
+The PyPI package is named **`fylle`**. It installs three importable modules: `fylle` (core SDK), `fylle_bridge` (framework adapters + runner), and `fylle_cli` (the `fylle` command). There is no `fylle-format` package — the format spec lives in this repo under `spec/`.
+
 No API key needed for the migration. The demo takes a sample OpenClaw agent, converts it through `.fylle`, and generates a ready-to-use Claude Code workspace.
 
-> Add `[bridge]` to the install (`pip install -e ".[bridge]"`) if you want live execution with Anthropic or OpenAI APIs.
+> Add `[bridge]` to the install (`pip install "fylle[bridge]"`) if you want live execution with Anthropic or OpenAI APIs.
 
 ---
 
@@ -92,6 +116,30 @@ my-agent.fylle
 ```
 
 It's YAML and Markdown. Any runtime reads what it understands, ignores the rest.
+
+### Development workflow: directory as source, ZIP as artifact
+
+You author agents as a **plain directory** of YAML and Markdown files. You ship them as a **`.fylle` ZIP archive**. Both forms hold the same content — the ZIP is just the distributable artifact.
+
+```bash
+# 1. Scaffold a working directory (the source)
+fylle init "My Agent" -o ./my-agent
+
+# 2. Edit files directly: manifest.yaml, agent.md, skills/*.yaml, ...
+$EDITOR ./my-agent/manifest.yaml
+
+# 3. Pack the directory into a single .fylle file (the artifact)
+fylle pack ./my-agent -o my-agent.fylle
+
+# 4. Distribute / inspect / validate the artifact
+fylle validate my-agent.fylle
+fylle inspect  my-agent.fylle
+
+# 5. Round-trip back to a directory if you need to edit a received package
+fylle unpack my-agent.fylle -o ./my-agent
+```
+
+Rule of thumb: **directories are for editing, ZIPs are for shipping**. Most tooling (`validate`, `inspect`, `migrate`, the runner) accepts either, but version control should track the directory, not the ZIP.
 
 ### Define an agent
 

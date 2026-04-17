@@ -15,6 +15,26 @@ A `.fylle` file is a ZIP archive with the `.fylle` extension that contains a com
 - **Human-readable** — YAML and Markdown, inspectable without tools
 - **Extensible** — unknown fields are ignored, not rejected
 
+### 1.1 Why ZIP and not a flat file or a bare directory
+
+`.fylle` deliberately chooses ZIP over the two obvious alternatives:
+
+- **A single YAML/JSON file with the prompt and skills inlined.** Simpler to email, but: (a) loses the readable separation between config (YAML) and prose (Markdown system prompts), (b) forces escaping of every newline and quote in long prompts, (c) makes `git diff` painful for the most-edited file, (d) cannot grow to hold binary assets (fixtures, classifiers, sample inputs) without base64 bloat.
+- **A bare directory.** This _is_ how you author a `.fylle` agent — and it is the canonical source form (see the development-workflow section in the README). But for distribution, a directory is awkward: there is no canonical hash to verify integrity, no single artifact to upload to a registry, no MIME type, no file association in operating systems, and no obvious unit for a CDN or signed URL.
+
+ZIP gives you both:
+
+| Property | Why it matters |
+|---|---|
+| Single file with a stable extension | One artifact to publish, sign, hash, share, or attach to a release |
+| Standard ZIP headers (`PK\x03\x04`) | Every OS, language, and HTTP client reads it without a custom library |
+| Internal directory structure preserved | `manifest.yaml`, `agent.md`, `skills/` stay editable and diffable when unpacked |
+| Allows non-text payloads | A future skill can ship a small binary (e.g. classifier, fixture, sample) without re-encoding |
+| Streamable + random-access | A registry can serve `manifest.yaml` from a remote `.fylle` without downloading the whole package |
+| MIME-typeable | `application/vnd.fylle.agent+zip` enables content negotiation and OS handlers |
+
+The trade-off accepted: a `.fylle` is not edited in place with a text editor — you `unpack`, edit, then `pack` again. This matches the directory-as-source / ZIP-as-artifact convention already used by `.docx`, `.epub`, `.jar`, `.whl`, and similar formats.
+
 ## 2. Package structure
 
 ```

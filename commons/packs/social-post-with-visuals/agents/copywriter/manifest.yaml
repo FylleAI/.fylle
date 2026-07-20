@@ -1,0 +1,54 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Social Copywriter"
+  version: "1.0.0"
+  description: "Creates placement-specific social copy and visual generation briefs"
+  role: "Social copywriter and creative planner"
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+  model:
+    preferred: "gpt-4.1"
+    settings:
+      temperature: 0.7
+      max_tokens: 4000
+  prompt_file: "agent.md"
+  language:
+    - "en"
+    - "it"
+  inputs:
+    - name: "topic"
+      type: "text"
+      required: true
+      description: "Message, offer, or idea for the post"
+    - name: "platforms"
+      type: "text"
+      required: false
+      description: "Requested placements"
+    - name: "brand_context"
+      type: "text"
+      required: false
+      description: "Brand identity and voice"
+    - name: "audience_context"
+      type: "text"
+      required: false
+      description: "Audience knowledge"
+    - name: "visual_context"
+      type: "text"
+      required: false
+      description: "Visual identity and authorized assets"
+    - name: "compliance_context"
+      type: "text"
+      required: false
+      description: "Guardrails"
+  output:
+    format: "markdown"
+  tools: {}
+  guardrails:
+    max_autonomy: "draft-only"
+  tags:
+    - "social"
+    - "copywriting"
+  category: "content-production"

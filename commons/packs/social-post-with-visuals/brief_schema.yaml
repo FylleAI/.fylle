@@ -1,0 +1,15 @@
+brief:
+  questions:
+    - id: "topic"
+      question: "What should the social post communicate?"
+      type: "text"
+      required: true
+    - id: "platforms"
+      question: "Which placements should the output target?"
+      type: "multiselect"
+      options:
+        - "Instagram/Facebook feed"
+        - "Instagram/TikTok story"
+        - "LinkedIn"
+      required: false
+      default: "Instagram/Facebook feed, Instagram/TikTok story"

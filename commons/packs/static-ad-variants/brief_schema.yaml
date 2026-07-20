@@ -1,0 +1,10 @@
+brief:
+  questions:
+    - id: "topic"
+      question: "Describe the product, offer, audience, objective, and visual constraints."
+      type: "text"
+      required: true
+    - id: "reference_assets"
+      question: "Provide authorized reference asset URLs or runtime asset identifiers, if any."
+      type: "text"
+      required: false

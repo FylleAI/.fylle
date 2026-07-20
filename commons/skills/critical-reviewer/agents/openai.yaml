@@ -1,0 +1,4 @@
+interface:
+  display_name: "Critical Reviewer"
+  short_description: "Evidence-bound stress tests for artifacts"
+  default_prompt: "Use $critical-reviewer to test whether this artifact holds against its stated objective."

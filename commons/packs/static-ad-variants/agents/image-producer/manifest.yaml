@@ -1,0 +1,57 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Static Ad Image Producer"
+  version: "1.0.0"
+  description: "Generates every planned static ad and reports real results and exact prompts"
+  role: "Paid-social image production operator"
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+  model:
+    preferred: "gpt-4.1"
+    minimum_capability:
+      - "tool-use"
+      - "long-context"
+    settings:
+      temperature: 0.3
+      max_tokens: 7000
+  prompt_file: "agent.md"
+  language:
+    - "en"
+    - "it"
+  inputs:
+    - name: "creative_strategy"
+      type: "text"
+      required: true
+      description: "Four generation-ready concepts"
+    - name: "reference_assets"
+      type: "text"
+      required: false
+      description: "Authorized runtime asset identifiers or URLs"
+    - name: "brand_context"
+      type: "text"
+      required: false
+      description: "Brand identity"
+    - name: "visual_context"
+      type: "text"
+      required: false
+      description: "Visual identity"
+    - name: "compliance_context"
+      type: "text"
+      required: false
+      description: "Advertising guardrails"
+  output:
+    format: "markdown"
+  tools:
+    required:
+      - name: "image_generation"
+        protocol: "function"
+        description: "Generate static ad images and return real results"
+  guardrails:
+    max_autonomy: "draft-only"
+  tags:
+    - "advertising"
+    - "image-generation"
+  category: "creative-production"

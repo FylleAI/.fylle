@@ -1,0 +1,57 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Blog Research Writer"
+  version: "1.0.0"
+  description: "Researches a topic and writes a source-grounded blog draft"
+  role: "Research-led blog writer"
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+  model:
+    preferred: "gpt-4.1"
+    minimum_capability:
+      - "tool-use"
+      - "long-context"
+    settings:
+      temperature: 0.5
+      max_tokens: 8000
+  prompt_file: "agent.md"
+  language:
+    - "en"
+    - "it"
+  inputs:
+    - name: "topic"
+      type: "text"
+      required: true
+      description: "Article topic and desired reader outcome"
+    - name: "audience"
+      type: "text"
+      required: true
+      description: "Primary reader"
+    - name: "brand_context"
+      type: "text"
+      required: false
+      description: "Runtime-provided brand voice and identity"
+    - name: "audience_context"
+      type: "text"
+      required: false
+      description: "Runtime-provided audience knowledge"
+    - name: "compliance_context"
+      type: "text"
+      required: false
+      description: "Runtime-provided guardrails"
+  output:
+    format: "markdown"
+  tools:
+    required:
+      - name: "web_search"
+        protocol: "function"
+        description: "Find current primary or authoritative sources and URLs"
+  guardrails:
+    max_autonomy: "draft-only"
+  tags:
+    - "blog"
+    - "research"
+  category: "content-production"

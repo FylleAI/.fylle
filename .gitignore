@@ -32,4 +32,5 @@ Thumbs.db
 
 # Build artifacts
 *.fylle
+*.fyllepack
 !examples/**/*.fylle

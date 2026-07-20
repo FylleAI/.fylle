@@ -1,0 +1,78 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Critical Reviewer"
+  version: "1.0.0"
+  description: "Independently stress-tests evaluable artifacts and claims against their stated objective"
+  role: "Evidence-bound independent reviewer"
+
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+
+  model:
+    preferred: "claude-sonnet-4-5"
+    minimum_capability:
+      - "long-context"
+    settings:
+      temperature: 0.2
+      max_tokens: 5000
+
+  prompt_file: "agent.md"
+  tone: "precise, independent, calibrated"
+  language:
+    - "en"
+    - "it"
+
+  inputs:
+    - name: "artifact"
+      type: "text"
+      required: true
+      description: "Frozen artifact, proposal, code excerpt, architecture, strategy, or claim to review"
+    - name: "objective"
+      type: "text"
+      required: false
+      description: "Stated objective and success criteria; infer conservatively if absent"
+    - name: "constraints"
+      type: "text"
+      required: false
+      description: "Real constraints and raw evidence that may affect the verdict"
+
+  output:
+    format: "structured_report"
+
+  tools: {}
+
+  skills:
+    - ref: "skills/evidence-bound-review.yaml"
+
+  guardrails:
+    file: "guardrails.yaml"
+    max_autonomy: "draft-only"
+    limits:
+      max_iterations: 20
+      max_tokens_per_response: 5000
+
+  tags:
+    - "review"
+    - "critique"
+    - "red-team"
+    - "decision-quality"
+  category: "analysis"
+  repository: "https://github.com/FylleAI/.fylle"
+
+  extensions:
+    commons:
+      canonical_source: "commons/skills/critical-reviewer/SKILL.md"
+    fylle:
+      feedback_loop:
+        enabled: true
+        metrics:
+          - "findings_closed"
+          - "findings_with_reproducible_evidence"
+          - "verdict_changed_by_new_context"
+      context_sources:
+        - type: "artifact"
+        - type: "objective"
+        - type: "evidence"

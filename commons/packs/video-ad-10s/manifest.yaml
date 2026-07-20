@@ -1,0 +1,53 @@
+fylle_format: "0.1.0"
+
+pack:
+  name: "Video Ad 10s"
+  version: "1.0.0"
+  description: "Plans and generates one ten-second paid-social video from a brief and optional references"
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+  pipeline:
+    - name: "strategist"
+      agent: "agents/strategist.fylle"
+      receives_from: []
+      input_mapping:
+        topic: "brief.topic"
+        reference_assets: "brief.reference_assets"
+        brand_context: "context.brand"
+        audience_context: "context.audience"
+        visual_context: "context.visual"
+        performance_context: "context.performance"
+        compliance_context: "context.compliance"
+    - name: "video-producer"
+      agent: "agents/video-producer.fylle"
+      receives_from:
+        - "strategist"
+      input_mapping:
+        video_strategy: "agents.strategist.output"
+        reference_assets: "brief.reference_assets"
+        brand_context: "context.brand"
+        visual_context: "context.visual"
+        compliance_context: "context.compliance"
+  execution:
+    mode: "sequential"
+    final_output: "video-producer"
+    error_handling: "stop"
+  brief_schema:
+    file: "brief_schema.yaml"
+  guardrails:
+    max_autonomy: "draft-only"
+  tags:
+    - "advertising"
+    - "paid-social"
+    - "video-generation"
+  category: "creative-production"
+  extensions:
+    fylle:
+      context_sources:
+        - type: "brand"
+        - type: "audience"
+        - type: "visual"
+        - type: "performance"
+        - type: "compliance"

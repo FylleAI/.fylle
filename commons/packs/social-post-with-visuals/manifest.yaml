@@ -1,0 +1,50 @@
+fylle_format: "0.1.0"
+
+pack:
+  name: "Social Post with Visuals"
+  version: "1.0.0"
+  description: "Creates feed and story copy, then generates matching square and vertical visuals"
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+  pipeline:
+    - name: "copywriter"
+      agent: "agents/copywriter.fylle"
+      receives_from: []
+      input_mapping:
+        topic: "brief.topic"
+        platforms: "brief.platforms"
+        brand_context: "context.brand"
+        audience_context: "context.audience"
+        visual_context: "context.visual"
+        compliance_context: "context.compliance"
+    - name: "visual-producer"
+      agent: "agents/visual-producer.fylle"
+      receives_from:
+        - "copywriter"
+      input_mapping:
+        copy_and_briefs: "agents.copywriter.output"
+        brand_context: "context.brand"
+        visual_context: "context.visual"
+        compliance_context: "context.compliance"
+  execution:
+    mode: "sequential"
+    final_output: "visual-producer"
+    error_handling: "stop"
+  brief_schema:
+    file: "brief_schema.yaml"
+  guardrails:
+    max_autonomy: "draft-only"
+  tags:
+    - "social"
+    - "copywriting"
+    - "image-generation"
+  category: "content-production"
+  extensions:
+    fylle:
+      context_sources:
+        - type: "brand"
+        - type: "audience"
+        - type: "visual"
+        - type: "compliance"

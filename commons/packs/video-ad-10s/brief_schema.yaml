@@ -1,0 +1,10 @@
+brief:
+  questions:
+    - id: "topic"
+      question: "Describe the product, offer, audience, objective, and visual constraints."
+      type: "text"
+      required: true
+    - id: "reference_assets"
+      question: "Provide authorized start, end, or style reference assets, if any."
+      type: "text"
+      required: false

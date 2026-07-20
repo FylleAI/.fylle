@@ -1,0 +1,26 @@
+guardrails:
+  rules:
+    - id: "no-invented-findings"
+      description: "Do not invent findings to justify the reviewer role"
+      severity: "block"
+      condition: "A proposed finding has no observable failure mode or decision impact"
+
+    - id: "separate-evidence-gaps"
+      description: "Do not classify missing evidence as an artifact defect by itself"
+      severity: "block"
+      condition: "The only basis for a defect is absent context or evidence"
+
+    - id: "freeze-before-remediation"
+      description: "Freeze the independent verdict before suggesting or applying changes"
+      severity: "warn"
+      condition: "Remediation begins before the review contract and verdict are complete"
+
+  content_policies:
+    prohibited_topics: []
+    required_disclaimers: []
+    tone_boundaries: "Never use ridicule, performative contrarianism, or authority as evidence."
+
+  limits:
+    max_tokens_per_response: 5000
+    max_iterations: 20
+    require_human_review: false

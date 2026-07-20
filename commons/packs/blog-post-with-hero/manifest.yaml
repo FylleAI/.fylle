@@ -1,0 +1,68 @@
+fylle_format: "0.1.0"
+
+pack:
+  name: "Blog Post with Hero Image"
+  version: "1.0.0"
+  description: "Researches, edits, and illustrates a source-grounded blog post"
+
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+
+  pipeline:
+    - name: "researcher"
+      agent: "agents/researcher.fylle"
+      receives_from: []
+      input_mapping:
+        topic: "brief.topic"
+        audience: "brief.audience"
+        brand_context: "context.brand"
+        audience_context: "context.audience"
+        compliance_context: "context.compliance"
+
+    - name: "editor"
+      agent: "agents/editor.fylle"
+      receives_from:
+        - "researcher"
+      input_mapping:
+        draft: "agents.researcher.output"
+        brand_context: "context.brand"
+        audience_context: "context.audience"
+        compliance_context: "context.compliance"
+
+    - name: "visual-producer"
+      agent: "agents/visual-producer.fylle"
+      receives_from:
+        - "editor"
+      input_mapping:
+        edited_article: "agents.editor.output"
+        brand_context: "context.brand"
+        visual_context: "context.visual"
+        compliance_context: "context.compliance"
+
+  execution:
+    mode: "sequential"
+    final_output: "visual-producer"
+    error_handling: "stop"
+
+  brief_schema:
+    file: "brief_schema.yaml"
+
+  guardrails:
+    max_autonomy: "draft-only"
+
+  tags:
+    - "blog"
+    - "research"
+    - "editing"
+    - "image-generation"
+  category: "content-production"
+
+  extensions:
+    fylle:
+      context_sources:
+        - type: "brand"
+        - type: "audience"
+        - type: "visual"
+        - type: "compliance"

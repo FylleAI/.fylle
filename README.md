@@ -27,7 +27,7 @@
 - Parser, builder, validator for the `.fylle` format
 - `.fyllepack` format for multi-agent workflows
 - Simple runner (Anthropic + OpenAI live execution)
-- 72 tests, all passing
+- 83 tests, all passing
 
 **Full migration pipeline:**
 OpenClaw &rarr; .fylle &rarr; Claude Code in one command — writes CLAUDE.md, settings.json, rules, and MCP config to disk. Then you run `claude` and your agent is live.
@@ -98,6 +98,24 @@ fylle inspect my-agent.fylle
 ```
 
 Run `fylle --help` for the full command reference.
+
+---
+
+## Fylle Commons
+
+[`commons/`](commons/) contains reusable behavior extracted from real Fylle
+workflows and generalized for public use:
+
+- native harness skills;
+- standalone portable `.fylle` agents;
+- multi-agent `.fyllepack` workflows for editorial and creative production.
+
+The library publishes process, not private context. Every entry must be used,
+generalized, sanitized, portable, validated, and explicit about its limits.
+
+```bash
+python commons/validate.py
+```
 
 ---
 

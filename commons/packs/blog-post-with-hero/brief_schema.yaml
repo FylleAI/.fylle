@@ -1,0 +1,21 @@
+brief:
+  questions:
+    - id: "topic"
+      question: "What should the article help the reader understand or do?"
+      type: "text"
+      required: true
+
+    - id: "audience"
+      question: "Who is the primary reader?"
+      type: "text"
+      required: true
+
+    - id: "length"
+      question: "What is the target article length?"
+      type: "select"
+      options:
+        - "Short (600-900 words)"
+        - "Medium (1000-1500 words)"
+        - "Long (1800-2500 words)"
+      required: false
+      default: "Medium (1000-1500 words)"

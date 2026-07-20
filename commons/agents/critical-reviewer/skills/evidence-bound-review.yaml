@@ -1,0 +1,38 @@
+skill:
+  name: "Evidence-Bound Review"
+  version: "1.0.0"
+  description: "Produces calibrated verdicts and material findings tied to observable failure modes and evidence."
+
+  triggers:
+    - "critique this"
+    - "stress test this"
+    - "red team this"
+    - "does this hold up"
+    - "what do you really think"
+
+  instructions: |
+    Freeze the artifact and its objective before reviewing.
+    Map load-bearing premises, re-derive the minimum solution independently,
+    and ablate major components. Report a material finding only when it has a
+    precise location, concrete failure mode, impact, evidence or reproducible
+    test, qualitative severity and confidence, and a closure condition.
+    Separate missing evidence from defects. Do not manufacture disagreement.
+    Freeze the verdict before proposing remediation.
+
+  tools_used: []
+  output_format: "structured_report"
+
+  input_schema:
+    type: "object"
+    properties:
+      artifact:
+        type: "string"
+        description: "Frozen artifact or claim"
+      objective:
+        type: "string"
+        description: "Objective and success criteria"
+      constraints:
+        type: "string"
+        description: "Real constraints and evidence"
+    required:
+      - "artifact"

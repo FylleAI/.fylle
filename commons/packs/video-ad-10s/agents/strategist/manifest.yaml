@@ -1,0 +1,60 @@
+fylle_format: "0.1.0"
+
+agent:
+  name: "Video Ad Strategist"
+  version: "1.0.0"
+  description: "Creates a coherent ten-second paid-social video plan from a brief and references"
+  role: "Performance video strategist and prompt planner"
+  author:
+    name: "Fylle"
+    url: "https://www.fylle.ai"
+  license: "Apache-2.0"
+  model:
+    preferred: "gpt-4.1"
+    minimum_capability:
+      - "long-context"
+    settings:
+      temperature: 0.4
+      max_tokens: 7000
+  prompt_file: "agent.md"
+  language:
+    - "en"
+    - "it"
+  inputs:
+    - name: "topic"
+      type: "text"
+      required: true
+      description: "Product, offer, audience, objective, and constraints"
+    - name: "reference_assets"
+      type: "text"
+      required: false
+      description: "Authorized start, end, or style reference assets"
+    - name: "brand_context"
+      type: "text"
+      required: false
+      description: "Brand identity and voice"
+    - name: "audience_context"
+      type: "text"
+      required: false
+      description: "Audience knowledge"
+    - name: "visual_context"
+      type: "text"
+      required: false
+      description: "Visual identity"
+    - name: "performance_context"
+      type: "text"
+      required: false
+      description: "Observed creative performance learnings"
+    - name: "compliance_context"
+      type: "text"
+      required: false
+      description: "Advertising guardrails"
+  output:
+    format: "markdown"
+  tools: {}
+  guardrails:
+    max_autonomy: "draft-only"
+  tags:
+    - "advertising"
+    - "video-strategy"
+  category: "creative-production"
